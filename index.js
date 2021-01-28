@@ -29,20 +29,7 @@ function ask(questionText) {
   });
 }
 
-start();
-
-async function start() {
-  console.log(
-    "Let's play a game where you (human) make up a number and I (computer) try to guess it."
-  );
-  let secretNumber = await ask(
-    "What is your secret number?\nI won't peek, I promise...\n"
-  );
-  console.log("You entered: " + secretNumber);
-  // Now try and complete the program.
-  process.exit();
-}
-
+//creates an empty array and fills it with a range determined by the two parameters
 function guessRange(startRange, endRange) {
   let arrayRange = [];
   for (let counter = startRange; counter <= endRange; counter++) {
@@ -50,9 +37,55 @@ function guessRange(startRange, endRange) {
   }
   return arrayRange;
 }
-
+//accepts an array and then using a ternary conditional computes the median index
 function median(array) {
   return array.length % 2 === 0
     ? (array[array.length / 2 - 1] + array[array.length / 2]) / 2
     : array[Math.floor(array.length / 2)];
+}
+
+start();
+
+//async function that runs a guessing numbers game
+async function start() {
+  console.log(
+    "Let's play a game where you (human) pick a range and a number in that range and I (computer) try to guess it."
+  );
+  //collects user input for the max range number and the users secret number that program must guess
+  let max = await ask(
+    "Pick any number greater than 1 that will represent the high range.\nFor example if you pick 100, our game would be a number between 1-100.\nGot it? Ok, so what will the high range be: "
+  );
+  let secretNumber = await ask(
+    "What is your secret number?\nI won't peek, I promise...\n"
+  );
+  console.log("You entered: " + secretNumber);
+  //setting up variables for the loop
+  let min = 1;
+  let computerGuess = 0;
+  let counter = 0;
+
+  while (computerGuess !== secretNumber) {
+    //loop that will continue iterating until program picks secret number
+    counter++;
+    let range = guessRange(min, max);
+    computerGuess = Math.floor(median(range));
+    let humanAnswer = await ask("Is this your number? " + computerGuess + "\n");
+    //conditional tree that evaluates input based on 4 options: Yes-No and High-Low
+    //the one break point for loop and conditional is the input Yes
+    if (humanAnswer === "Yes") {
+      break;
+    }
+    let highOrLow = await ask("Is it higher (H), or Lower (L)? ");
+
+    if (humanAnswer === "No" && highOrLow === "H") {
+      min = computerGuess;
+    } else if (humanAnswer === "No" && highOrLow === "L") {
+      max = computerGuess;
+    }
+  }
+  //after loop breaks there are three log statements that reveal the secret number, track how many guesses, and issue a conciliatory statement
+  console.log("Your number was " + secretNumber);
+  console.log("I guessed it in " + counter + " attempts");
+  console.log("I won! Better luck next time");
+  process.exit();
 }
