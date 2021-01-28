@@ -42,3 +42,17 @@ async function start() {
   // Now try and complete the program.
   process.exit();
 }
+
+function guessRange(startRange, endRange) {
+  let arrayRange = [];
+  for (let counter = startRange; counter <= endRange; counter++) {
+    arrayRange.push(counter);
+  }
+  return arrayRange;
+}
+
+function median(array) {
+  return array.length % 2 === 0
+    ? (array[array.length / 2 - 1] + array[array.length / 2]) / 2
+    : array[Math.floor(array.length / 2)];
+}
