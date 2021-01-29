@@ -44,8 +44,6 @@ function median(array) {
     : array[Math.floor(array.length / 2)];
 }
 
-start();
-
 //async function that runs a guessing numbers game
 async function start() {
   console.log(
@@ -53,7 +51,7 @@ async function start() {
   );
   //collects user input for the max range number and the users secret number that program must guess
   let max = await ask(
-    "Pick any number greater than 1 that will represent the high range.\nFor example if you pick 100, our game would be a number between 1-100.\nGot it? Ok, so what will the high range be: "
+    "Pick any number greater than 1 that will represent the high range.\nFor example if you pick 100, our game would be a number between 1-100.\n\nGot it? Ok, so what will the high range be: "
   );
   let secretNumber = await ask(
     "What is your secret number?\nI won't peek, I promise...\n"
@@ -78,27 +76,36 @@ async function start() {
     //conditional tree that evaluates input based on 4 options: Yes-No and High-Low
     //a break point for loop and conditional is if the input Yes or if the computer guess and secret number are the same but the user does not answer
     console.log(`Computer Guess = ${computerGuess}`);
-    if (humanAnswer === "Yes") {
-      break;
+
+    if (humanAnswer === "No" && computerGuess == secretNumber) {
       //using equals and not identity because input is a string number and not an actual one (will fix type conversion is preferred over coercion)
-    } else if (humanAnswer === "No" && computerGuess == secretNumber) {
       console.log(`You answered incorrectly. I chose correctly!`);
+      break;
+    } else if (humanAnswer === "Yes" && computerGuess != secretNumber) {
+      console.log(`You are not being truthy with me`);
+      process.exit();
+    } else if (humanAnswer === "Yes") {
       break;
     }
 
     let highOrLow = await ask("Is it Higher (H), or Lower (L)? ");
 
-    //Need to build in cheat detector here and guard clause
+    //cheat detector
     if (computerGuess === min + 1 && highOrLow === "L") {
       console.log(`Hey no cheating!`);
-      process.exit;
+      process.exit();
     } else if (computerGuess === max - 1 && highOrLow === "H") {
       console.log(`Hey that can't be right! I don't play with cheaters`);
       process.exit();
+    } else if (
+      (highOrLow === "L" && computerGuess < secretNumber) ||
+      (highOrLow === "H" && computerGuess > secretNumber)
+    ) {
+      console.log(`Hey that can't be right! Answer honestly.`);
     }
 
-    //conditional processing Yes or No and High or Low input and updating the min and max accordingly
     if (humanAnswer === "No" && highOrLow === "H") {
+      //conditional processing Yes or No and High or Low input and updating the min and max accordingly
       min = computerGuess;
     } else if (humanAnswer === "No" && highOrLow === "L") {
       max = computerGuess;
@@ -109,13 +116,18 @@ async function start() {
   console.log("Your number was " + secretNumber);
   console.log("I guessed it in " + counter + " attempts");
   console.log("I won! Better luck next time");
-  process.exit();
+  let reload = await ask(`Do you want to play again? Type 'yes' or 'no' `);
+  if (reload === "no") {
+    console.log(`Bummer`);
+    process.exit();
+  } else {
+    return start();
+  }
 }
-
+start();
 //to-do
 //sanitize user input
-//guard clause for if computer guess === secret number answer must be Yes or will get reprimanded and the loop breaks
-//same for if a user says the wrong number is correct => gets admonished for bad behavior
-//Allow for a restart of game at the end
+//need to solve why I must use comparison and not identity with compGuess == secretNum or doesn't work
+//build multiple loops for high and Low and No or Yes
 //build new reversal game
 //combine reversal and normal - allow user to choose
