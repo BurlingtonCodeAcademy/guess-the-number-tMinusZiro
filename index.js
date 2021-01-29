@@ -67,25 +67,55 @@ async function start() {
   while (computerGuess !== secretNumber) {
     //loop that will continue iterating until program picks secret number
     counter++;
+    console.log(`min = ${min}`);
+    console.log(`max = ${max}`);
+    console.log(`Computer Guess = ${computerGuess}`);
+
     let range = guessRange(min, max);
     computerGuess = Math.floor(median(range));
+
     let humanAnswer = await ask("Is this your number? " + computerGuess + "\n");
     //conditional tree that evaluates input based on 4 options: Yes-No and High-Low
-    //the one break point for loop and conditional is the input Yes
+    //a break point for loop and conditional is if the input Yes or if the computer guess and secret number are the same but the user does not answer
+    console.log(`Computer Guess = ${computerGuess}`);
     if (humanAnswer === "Yes") {
       break;
+      //using equals and not identity because input is a string number and not an actual one (will fix type conversion is preferred over coercion)
+    } else if (humanAnswer === "No" && computerGuess == secretNumber) {
+      console.log(`You answered incorrectly. I chose correctly!`);
+      break;
     }
-    let highOrLow = await ask("Is it higher (H), or Lower (L)? ");
 
+    let highOrLow = await ask("Is it Higher (H), or Lower (L)? ");
+
+    //Need to build in cheat detector here and guard clause
+    if (computerGuess === min + 1 && highOrLow === "L") {
+      console.log(`Hey no cheating!`);
+      process.exit;
+    } else if (computerGuess === max - 1 && highOrLow === "H") {
+      console.log(`Hey that can't be right! I don't play with cheaters`);
+      process.exit();
+    }
+
+    //conditional processing Yes or No and High or Low input and updating the min and max accordingly
     if (humanAnswer === "No" && highOrLow === "H") {
       min = computerGuess;
     } else if (humanAnswer === "No" && highOrLow === "L") {
       max = computerGuess;
     }
   }
+
   //after loop breaks there are three log statements that reveal the secret number, track how many guesses, and issue a conciliatory statement
   console.log("Your number was " + secretNumber);
   console.log("I guessed it in " + counter + " attempts");
   console.log("I won! Better luck next time");
   process.exit();
 }
+
+//to-do
+//sanitize user input
+//guard clause for if computer guess === secret number answer must be Yes or will get reprimanded and the loop breaks
+//same for if a user says the wrong number is correct => gets admonished for bad behavior
+//Allow for a restart of game at the end
+//build new reversal game
+//combine reversal and normal - allow user to choose
